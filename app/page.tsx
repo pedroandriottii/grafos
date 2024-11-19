@@ -6,6 +6,7 @@ import { GraphList } from '@/components/graphs/graphList'
 import { GraphSettings } from '@/components/graphs/graphSettings'
 import { GraphView } from '@/components/graphs/graphViews'
 import { Adjacency } from '@/components/graphs/graphAdjacency'
+import { AdjacencyCheck } from '@/components/graphs/graphAdjacencyCheck'
 import React, { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
@@ -32,14 +33,6 @@ export default function ImprovedGraphGenerator() {
 
   const graphOrder = graphData.nodes.length
   const graphSize = graphData.links.length
-
-  const areVerticesAdjacent = (vertexA: string, vertexB: string) => {
-    return graphData.links.some(link =>
-      (link.source === vertexA && link.target === vertexB) ||
-      (!isDirected && link.source === vertexB && link.target === vertexA)
-    )
-  }
-
 
   const addNode = (nodeName: string) => {
     if (!graphData.nodes.some(node => node.id === nodeName)) {
@@ -81,6 +74,13 @@ export default function ImprovedGraphGenerator() {
       outgoing: outgoingDegree,
       total: isDirected ? incomingDegree + outgoingDegree : outgoingDegree
     }
+  }
+
+  const areVerticesAdjacent = (vertexA: string, vertexB: string) => {
+    return graphData.links.some(link =>
+      (link.source === vertexA && link.target === vertexB) ||
+      (!isDirected && link.source === vertexB && link.target === vertexA)
+    )
   }
 
   return (
@@ -170,6 +170,18 @@ export default function ImprovedGraphGenerator() {
             nodes={graphData.nodes}
             getAdjacents={getAdjacentVertices}
             getDegree={getVertexDegree}
+          />
+        </CardContent>
+      </Card>
+
+      <Card className="mt-8">
+        <CardHeader>
+          <CardTitle>Verificar Adjacência</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <AdjacencyCheck
+            nodes={graphData.nodes}
+            checkAdjacency={areVerticesAdjacent}
           />
         </CardContent>
       </Card>
