@@ -40,6 +40,10 @@ export default function ImprovedGraphGenerator() {
   const [linkWeight, setLinkWeight] = useState<number>(1)
   const [isDirected, setIsDirected] = useState(true)
 
+  // Calcular Ordem e Tamanho
+  const graphOrder = graphData.nodes.length // Número de vértices
+  const graphSize = graphData.links.length  // Número de arestas
+
   const addNode = () => {
     if (newNodeName && !graphData.nodes.some(node => node.id === newNodeName)) {
       const newColor = colors[graphData.nodes.length % colors.length]
@@ -110,6 +114,18 @@ export default function ImprovedGraphGenerator() {
   return (
     <div className="container mx-auto p-6">
       <h1 className="text-3xl font-bold mb-8">Gerador de Grafos Aprimorado com Pesos</h1>
+
+      <div className="grid md:grid-cols-2 gap-8 mb-8">
+        <Card>
+          <CardHeader>
+            <CardTitle>Informações do Grafo</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p><strong>Ordem (Número de Vértices):</strong> {graphOrder}</p>
+            <p><strong>Tamanho (Número de Arestas):</strong> {graphSize}</p>
+          </CardContent>
+        </Card>
+      </div>
 
       <div className="grid md:grid-cols-2 gap-8 mb-8">
         <Card>
