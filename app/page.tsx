@@ -9,6 +9,7 @@ import { Adjacency } from '@/components/graphs/graphAdjacency'
 import { AdjacencyCheck } from '@/components/graphs/graphAdjacencyCheck'
 import React, { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { ShortestPath } from '@/components/graphs/graphShortestPath';
 
 interface Node {
   id: string
@@ -81,6 +82,57 @@ export default function ImprovedGraphGenerator() {
       (link.source === vertexA && link.target === vertexB) ||
       (!isDirected && link.source === vertexB && link.target === vertexA)
     )
+  }
+
+  const findShortestPath = (start: string, end: string) => {
+    const distances: Record<string, number> = {}
+    const previous: Record<string, string | null> = {}
+    const unvisited = new Set(graphData.nodes.map(node => node.id))
+
+    graphData.nodes.forEach(node => {
+      distances[node.id] = Infinity
+      previous[node.id] = null
+    })
+    distances[start] = 0
+
+    while (unvisited.size > 0) {
+      const currentNode = Array.from(unvisited).reduce((minNode, node) =>
+        distances[node] < distances[minNode] ? node : minNode
+      )
+
+      if (currentNode === end) break
+      unvisited.delete(currentNode)
+
+      graphData.links.forEach(link => {
+        if (link.source === currentNode && unvisited.has(link.target)) {
+          const newDistance = distances[currentNode] + link.weight
+          if (newDistance < distances[link.target]) {
+            distances[link.target] = newDistance
+            previous[link.target] = currentNode
+          }
+        }
+        if (!isDirected && link.target === currentNode && unvisited.has(link.source)) {
+          const newDistance = distances[currentNode] + link.weight
+          if (newDistance < distances[link.source]) {
+            distances[link.source] = newDistance
+            previous[link.source] = currentNode
+          }
+        }
+      })
+    }
+
+    const path: string[] = []
+    let current = end
+    while (current) {
+      path.unshift(current)
+      current = previous[current] || ''
+    }
+
+    if (path[0] !== start) {
+      return { cost: Infinity, path: [] }
+    }
+
+    return { cost: distances[end], path }
   }
 
   return (
@@ -182,6 +234,18 @@ export default function ImprovedGraphGenerator() {
           <AdjacencyCheck
             nodes={graphData.nodes}
             checkAdjacency={areVerticesAdjacent}
+          />
+        </CardContent>
+      </Card>
+
+      <Card className="mt-8">
+        <CardHeader>
+          <CardTitle>Caminho Mais Curto</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ShortestPath
+            nodes={graphData.nodes}
+            findPath={findShortestPath}
           />
         </CardContent>
       </Card>
