@@ -5,6 +5,7 @@ import { GraphInfo } from '@/components/graphs/graphInfo'
 import { GraphList } from '@/components/graphs/graphList'
 import { GraphSettings } from '@/components/graphs/graphSettings'
 import { GraphView } from '@/components/graphs/graphViews'
+import { Adjacency } from '@/components/graphs/graphAdjacency'
 import React, { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
@@ -32,6 +33,14 @@ export default function ImprovedGraphGenerator() {
   const graphOrder = graphData.nodes.length
   const graphSize = graphData.links.length
 
+  const areVerticesAdjacent = (vertexA: string, vertexB: string) => {
+    return graphData.links.some(link =>
+      (link.source === vertexA && link.target === vertexB) ||
+      (!isDirected && link.source === vertexB && link.target === vertexA)
+    )
+  }
+
+
   const addNode = (nodeName: string) => {
     if (!graphData.nodes.some(node => node.id === nodeName)) {
       setGraphData(prev => ({
@@ -46,6 +55,32 @@ export default function ImprovedGraphGenerator() {
       ...prev,
       links: [...prev.links, { source, target, type, weight }]
     }))
+  }
+
+  const getAdjacentVertices = (vertexId: string) => {
+    const incoming = graphData.links
+      .filter(link => link.target === vertexId)
+      .map(link => link.source)
+
+    const outgoing = graphData.links
+      .filter(link => link.source === vertexId)
+      .map(link => link.target)
+
+    return {
+      incoming: isDirected ? incoming : Array.from(new Set([...incoming, ...outgoing])),
+      outgoing: isDirected ? outgoing : Array.from(new Set([...incoming, ...outgoing]))
+    }
+  }
+
+  const getVertexDegree = (vertexId: string) => {
+    const incomingDegree = graphData.links.filter(link => link.target === vertexId).length
+    const outgoingDegree = graphData.links.filter(link => link.source === vertexId).length
+
+    return {
+      incoming: incomingDegree,
+      outgoing: outgoingDegree,
+      total: isDirected ? incomingDegree + outgoingDegree : outgoingDegree
+    }
   }
 
   return (
@@ -122,6 +157,19 @@ export default function ImprovedGraphGenerator() {
                 links: prev.links.filter(link => !(link.source === source && link.target === target))
               }))
             }
+          />
+        </CardContent>
+      </Card>
+
+      <Card className="mt-8">
+        <CardHeader>
+          <CardTitle>Adjacências e Grau</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Adjacency
+            nodes={graphData.nodes}
+            getAdjacents={getAdjacentVertices}
+            getDegree={getVertexDegree}
           />
         </CardContent>
       </Card>

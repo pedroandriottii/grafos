@@ -53,18 +53,6 @@ export const AddLink: React.FC<AddLinkProps> = ({ nodes, onAddLink }) => {
         </div>
       </div>
       <div>
-        <Label htmlFor="linkType">Tipo de Conexão:</Label>
-        <Select onValueChange={(value: 'directional' | 'non-directional') => setType(value)} value={type}>
-          <SelectTrigger>
-            <SelectValue placeholder="Selecione o tipo" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="directional">Direcional</SelectItem>
-            <SelectItem value="non-directional">Não Direcional</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-      <div>
         <Label htmlFor="linkWeight">Peso da Conexão:</Label>
         <Input
           id="linkWeight"
